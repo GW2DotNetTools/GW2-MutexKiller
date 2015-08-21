@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Gw2MutexKiller
+namespace GW2MutexKiller
 {
     public class Win32Processes
     {

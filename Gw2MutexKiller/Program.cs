@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Gw2MutexKiller 
+namespace GW2MutexKiller 
 {
     public class Program
     {

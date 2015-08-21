@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Gw2MutexKiller
+namespace GW2MutexKiller
 {
     public class Win32API
     {
