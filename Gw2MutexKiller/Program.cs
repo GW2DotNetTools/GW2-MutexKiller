@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-
+using System.Linq;
+using System.Collections.Generic;
 namespace GW2MutexKiller 
 {
     public class Program
@@ -15,8 +16,16 @@ namespace GW2MutexKiller
             try
             {
                 Process process = Process.GetProcessesByName(ProcessName)[0];
-                var handles = Win32Processes.GetHandles(process, "Mutant", "\\Sessions\\1\\BaseNamedObjects\\" + MutexName);
-                if (handles.Count == 0) throw new System.ArgumentException("NoMutex", "original");
+                List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = new List<Win32API.SYSTEM_HANDLE_INFORMATION>();
+                for (int i = 0; i < 99; i++)
+                {
+                    handles = Win32Processes.GetHandles(process, "Mutant", "\\Sessions\\" + i + "\\BaseNamedObjects\\" + MutexName);
+                    if (handles.Count > 0)
+                    { 
+                        break; 
+                    }
+                }
+               
                 foreach (var handle in handles)
                 {
                     IntPtr ipHandle = IntPtr.Zero;
