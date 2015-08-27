@@ -19,7 +19,9 @@ namespace GW2MutexKiller
                 List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = new List<Win32API.SYSTEM_HANDLE_INFORMATION>();
                 for (int i = 0; i < 99; i++)
                 {
-                    handles = Win32Processes.GetHandles(process, "Mutant", "\\Sessions\\" + i + "\\BaseNamedObjects\\" + MutexName);
+                    string mutex = "\\Sessions\\" + i + "\\BaseNamedObjects\\" + MutexName;
+                    Console.WriteLine("Searching in " + mutex);
+                    handles = Win32Processes.GetHandles(process, "Mutant", mutex);
                     if (handles.Count > 0)
                     { 
                         break; 
