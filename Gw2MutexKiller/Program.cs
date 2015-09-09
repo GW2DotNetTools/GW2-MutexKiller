@@ -11,11 +11,21 @@ namespace GW2MutexKiller
         public static void Main(string[] args)
         {
             const string MutexName = "AN-Mutex-Window-Guild Wars 2";
-            const string ProcessName = "gw2";
+            string ProcessNameOriginal = "gw2";
+            string ProcessNameTest = "Gw2FeaturePublicTestTiny";
 
             try
             {
-                Process process = Process.GetProcessesByName(ProcessName)[0];
+                Process process = null;
+                if (Process.GetProcessesByName(ProcessNameOriginal).Count() == 1)
+                {
+                    process = Process.GetProcessesByName(ProcessNameOriginal)[0];
+                }
+                else
+                {
+                    process = Process.GetProcessesByName(ProcessNameTest)[0];
+                }
+
                 List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = new List<Win32API.SYSTEM_HANDLE_INFORMATION>();
                 for (int i = 0; i < 99; i++)
                 {
@@ -49,11 +59,11 @@ namespace GW2MutexKiller
             }
             catch (IndexOutOfRangeException)
             {
-                Console.WriteLine("The process name '{0}' is not currently running", ProcessName);
+                Console.WriteLine("The process is not currently running.");
             }
             catch (ArgumentException)
             {
-                Console.WriteLine("The Mutex '{0}' was not found in the process '{1}'", MutexName, ProcessName);
+                Console.WriteLine("The Mutex '{0}' was not found.", MutexName);
             }
 
             Console.WriteLine("Press any key to close.");
