@@ -6,5 +6,5 @@ Simply execute the .exe and if you are running Guild Wars 2, the mutex will be k
 Requires .NET 4.5
 
 Tested with:
-* Gw2.exe
+* Gw2.exe (32bit/64bit)
 * Gw2FeaturePublicTestTiny.exe
