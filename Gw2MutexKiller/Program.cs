@@ -50,18 +50,21 @@ namespace GW2MutexKiller
 
         private static void RunThroughSession(int sessionId, Process process)
         {
-            string mutex = string.Format("\\Sessions\\{0}\\BaseNamedObjects\\{1}", sessionId, Mutex);
-            Console.WriteLine(string.Format("Searching for handle: {0}", mutex));
-            List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, "Mutant", mutex);
-            if (handles.Count == 1)
-            {
-                IntPtr ipHandle = IntPtr.Zero;
+            Console.WriteLine(string.Format("Searching for handle: {0}", Mutex));
 
-                if (Win32API.DuplicateHandle(Process.GetProcessById(handles[0].ProcessID).Handle, handles[0].Handle, Win32API.GetCurrentProcess(), out ipHandle, 0, false, Win32API.DUPLICATE_CLOSE_SOURCE))
+            List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, "Mutant");
+            foreach (var handle in handles)
+            {
+                string strObjectName2 = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
+                if (!string.IsNullOrWhiteSpace(strObjectName2) && strObjectName2.EndsWith(Mutex))
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("Mutex was killed");
-                    AutoClose();
+                    IntPtr ipHandle = IntPtr.Zero;
+                    if (Win32API.DuplicateHandle(Process.GetProcessById(handle.ProcessID).Handle, handle.Handle, Win32API.GetCurrentProcess(), out ipHandle, 0, false, Win32API.DUPLICATE_CLOSE_SOURCE))
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("Mutex was killed");
+                        AutoClose();
+                    }
                 }
             }
         }
