@@ -16,9 +16,9 @@ namespace GW2MutexKiller
             AppDomain.CurrentDomain.UnhandledException += (o, e) => HandleException();
             Application.ThreadException += (o, e) => HandleException();
 
-            bool result = Run();
-            Console.WriteLine(result ? "Could not find Mutex: " + Mutex : "Please check if GW2 is running!");
-
+            Run();
+            Console.WriteLine("Could not find Mutex: " + Mutex);
+            Console.WriteLine("Please check if GW2 is running!");
             Console.WriteLine("Press any key to close.");
             Console.ReadLine();
         }
@@ -31,41 +31,30 @@ namespace GW2MutexKiller
             Environment.Exit(0);
         }
 
-        private static bool Run()
+        private static void Run()
         {
-            bool runAtLeastOnce = false;
             foreach (var process in Process.GetProcesses().Where(x => x.ProcessName.ToLower().StartsWith("gw2") && !x.ProcessName.ToLower().StartsWith("gw2mutexkiller") ).ToList())
             {
                 Console.WriteLine("Checking in Process: " + process.ProcessName);
-                runAtLeastOnce = true;
-                for (int sessionId = 0; sessionId < 10; sessionId++)
+                Console.WriteLine(string.Format("Searching for handle: {0}", Mutex));
+
+                List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, "Mutant");
+                foreach (var handle in handles)
                 {
-                    RunThroughSession(sessionId, process);
-                }
-                Console.WriteLine();
-            }
-
-            return runAtLeastOnce;
-        }
-
-        private static void RunThroughSession(int sessionId, Process process)
-        {
-            Console.WriteLine(string.Format("Searching for handle: {0}", Mutex));
-
-            List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, "Mutant");
-            foreach (var handle in handles)
-            {
-                string strObjectName2 = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
-                if (!string.IsNullOrWhiteSpace(strObjectName2) && strObjectName2.EndsWith(Mutex))
-                {
-                    IntPtr ipHandle = IntPtr.Zero;
-                    if (Win32API.DuplicateHandle(Process.GetProcessById(handle.ProcessID).Handle, handle.Handle, Win32API.GetCurrentProcess(), out ipHandle, 0, false, Win32API.DUPLICATE_CLOSE_SOURCE))
+                    string strObjectName2 = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
+                    if (!string.IsNullOrWhiteSpace(strObjectName2) && strObjectName2.EndsWith(Mutex))
                     {
-                        Console.WriteLine();
-                        Console.WriteLine("Mutex was killed");
-                        AutoClose();
+                        IntPtr ipHandle = IntPtr.Zero;
+                        if (Win32API.DuplicateHandle(Process.GetProcessById(handle.ProcessID).Handle, handle.Handle, Win32API.GetCurrentProcess(), out ipHandle, 0, false, Win32API.DUPLICATE_CLOSE_SOURCE))
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("Mutex was killed");
+                            AutoClose();
+                        }
                     }
                 }
+
+                Console.WriteLine();
             }
         }
 
